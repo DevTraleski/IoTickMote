@@ -11,11 +11,6 @@
 #define DEBUG DEBUG_PRINT
 #include "net/ipv6/uip-debug.h"
 
-#include "sys/log.h"
-#include "coap-log.h"
-#define LOG_MODULE "App"
-#define LOG_LEVEL LOG_LEVEL_APP
-
 //CoAP configuration
 #define SERVER_EP "coap://[fe80::201:1:1:1]"
 #define TOGGLE_INTERVAL 10
@@ -46,7 +41,7 @@ PROCESS_THREAD(server, ev, data)
 {
   PROCESS_BEGIN();
 
-  LOG_INFO("Starting Gateway CoAP Server\n");
+  //LOG_INFO("Starting Gateway CoAP Server\n");
 
   coap_activate_resource(&res_hello, "test/hello");
 

@@ -9,10 +9,6 @@
 #include "coap-blocking-api.h"
 #include "net/ipv6/multicast/uip-mcast6.h"
 
-#include "sys/log.h"
-#include "coap-log.h"
-#define LOG_MODULE "App"
-#define LOG_LEVEL LOG_LEVEL_APP
 
 #define DEBUG DEBUG_PRINT
 #include "net/ipv6/uip-debug.h"
@@ -58,7 +54,7 @@ PROCESS_THREAD(server, ev, data)
 {
   PROCESS_BEGIN();
 
-  LOG_INFO("Starting Gateway CoAP Server\n");
+  //LOG_INFO("Starting Gateway CoAP Server\n");
   coap_activate_resource(&res_hello, "test/hello");
 
   PRINTF("Multicast Engine Starting\n");
@@ -96,8 +92,8 @@ PROCESS_THREAD(client, ev, data)
 
       coap_set_payload(request, (uint8_t *)msg, sizeof(msg) - 1);
 
-      LOG_INFO_COAP_EP(&server_ep);
-      LOG_INFO_("\n");
+      //LOG_INFO_COAP_EP(&server_ep);
+      //LOG_INFO_("\n");
 
       COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
 

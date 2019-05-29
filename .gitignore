@@ -1,0 +1,7 @@
+# Created by Andre Traleski
+# Ignore Contiki trash
+
+*.cooja
+build/
+
+# End of ignore

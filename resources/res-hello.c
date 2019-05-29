@@ -59,10 +59,8 @@ RESOURCE(res_hello,
 static void
 res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
-  //FILE * fp = fopen("/home/traleski/contiki-ng/examples/IoTick/resources/log.txt","w");
-  //fprintf (fp, "Resource accessed\n");
-  //fclose (fp);
-  
+  printf("Entered resource\n");
+
   const char *len = NULL;
   /* Some data that has the length up to REST_MAX_CHUNK_SIZE. For more, see the chunk resource. */
   char const *const message = "Hello World! ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy";
