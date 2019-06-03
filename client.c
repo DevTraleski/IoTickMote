@@ -24,7 +24,7 @@ extern coap_resource_t
 static struct etimer et;
 
 void
-client_chunk_handler(coap_message_t *response)
+client_handler(coap_message_t *response)
 {
   const uint8_t *chunk;
 
@@ -79,7 +79,7 @@ PROCESS_THREAD(client, ev, data)
       LOG_INFO_COAP_EP(&server_ep);
       LOG_INFO_("\n");
 
-      COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
+      COAP_BLOCKING_REQUEST(&server_ep, request, client_handler);
 
       printf("\n--Done--\n");
 

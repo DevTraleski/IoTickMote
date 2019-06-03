@@ -31,39 +31,45 @@
 
 /**
  * \file
- *      Erbium (Er) example project configuration.
+ *      Example resource
  * \author
  *      Matthias Kovatsch <kovatsch@inf.ethz.ch>
  */
 
- #ifndef PROJECT_CONF_H_
- #define PROJECT_CONF_H_
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "coap-engine.h"
 
- #include "net/ipv6/multicast/uip-mcast6-engines.h"
 
- //DTLS Config
- #define COAP_DTLS_PSK_DEFAULT_IDENTITY "Client_identity"
- #define COAP_DTLS_PSK_DEFAULT_KEY      "secretPSK"
+static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 
- /* Change this to switch engines. Engine codes in uip-mcast6-engines.h */
- #ifndef UIP_MCAST6_CONF_ENGINE
- #define UIP_MCAST6_CONF_ENGINE UIP_MCAST6_ENGINE_MPL
- #endif
+/*
+ * A handler function named [resource name]_handler must be implemented for each RESOURCE.
+ * A buffer for the response payload is provided through the buffer pointer. Simple resources can ignore
+ * preferred_size and offset, but must respect the REST_MAX_CHUNK_SIZE limit for the buffer.
+ * If a smaller block size is requested for CoAP, the REST framework automatically splits the data.
+ */
+RESOURCE(res_gateway,
+         "title=\"Gateway: ?len=0..\";rt=\"Text\"",
+         res_get_handler,
+         NULL,
+         NULL,
+         NULL);
 
- /* For Imin: Use 16 over CSMA, 64 over Contiki MAC */
- #define ROLL_TM_CONF_IMIN_1         64
- #define MPL_CONF_DATA_MESSAGE_IMIN  64
- #define MPL_CONF_CONTROL_MESSAGE_IMIN  64
+static void
+res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
+{
+  printf("Gateway resource called\n");
 
- #define UIP_MCAST6_ROUTE_CONF_ROUTES 1
+  //const char *len = NULL;
+  /* Some data that has the length up to REST_MAX_CHUNK_SIZE. For more, see the chunk resource. */
+  char const *const message = "Hello World! ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy";
+  int length = 12; /*          |<-------->| */
 
- /* Code/RAM footprint savings so that things will fit on our device */
- #ifndef NETSTACK_MAX_ROUTE_ENTRIES
- #define NETSTACK_MAX_ROUTE_ENTRIES   10
- #endif
+  memcpy(buffer, message, length);
 
- #ifndef NBR_TABLE_CONF_MAX_NEIGHBORS
- #define NBR_TABLE_CONF_MAX_NEIGHBORS 10
- #endif
-
- #endif /* PROJECT_CONF_H_ */
+  coap_set_header_content_format(response, TEXT_PLAIN); /* text/plain is the default, hence this option could be omitted. */
+  coap_set_header_etag(response, (uint8_t *)&length, 1);
+  coap_set_payload(response, buffer, length);
+}

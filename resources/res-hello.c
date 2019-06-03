@@ -40,8 +40,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include "coap-engine.h"
+//#include "coap-blocking-api.h"
+
+#define SERVER_EP "coap://[fe80::201:1:1:1]"
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
+
+void
+client_chunk_handler(coap_message_t *response)
+{
+  const uint8_t *chunk;
+
+  int len = coap_get_payload(response, &chunk);
+
+  printf("|%.*s", len, (char *)chunk);
+}
 
 /*
  * A handler function named [resource name]_handler must be implemented for each RESOURCE.
@@ -61,24 +74,26 @@ res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buff
 {
   printf("Entered resource\n");
 
-  const char *len = NULL;
+  //const char *len = NULL;
   /* Some data that has the length up to REST_MAX_CHUNK_SIZE. For more, see the chunk resource. */
   char const *const message = "Hello World! ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy";
   int length = 12; /*          |<-------->| */
 
-  /* The query string can be retrieved by rest_get_query() or parsed for its key-value pairs. */
-  if(coap_get_query_variable(request, "len", &len)) {
-    length = atoi(len);
-    if(length < 0) {
-      length = 0;
-    }
-    if(length > REST_MAX_CHUNK_SIZE) {
-      length = REST_MAX_CHUNK_SIZE;
-    }
-    memcpy(buffer, message, length);
-  } else {
-    memcpy(buffer, message, length);
-  }
+  memcpy(buffer, message, length);
+
+  static coap_endpoint_t server_ep;
+  static coap_message_t req[1];      /* This way the packet can be treated as pointer as usual. */
+
+  coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
+  coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
+  coap_set_header_uri_path(req, "test/gateway");
+
+  const char msg[] = "Oh hi mark!";
+
+  coap_set_payload(req, (uint8_t *)msg, sizeof(msg) - 1);
+
+  //COAP_BLOCKING_REQUEST(&server_ep, req, client_chunk_handler);
+  coap_sendto(&server_ep, (uint8_t *)msg, sizeof(msg) - 1);
 
   coap_set_header_content_format(response, TEXT_PLAIN); /* text/plain is the default, hence this option could be omitted. */
   coap_set_header_etag(response, (uint8_t *)&length, 1);

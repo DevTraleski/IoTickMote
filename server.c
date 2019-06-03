@@ -32,7 +32,7 @@
 
 
 extern coap_resource_t
-  res_hello;
+  res_gateway;
 
 static struct etimer et;
 
@@ -55,7 +55,7 @@ PROCESS_THREAD(server, ev, data)
   PROCESS_BEGIN();
 
   //LOG_INFO("Starting Gateway CoAP Server\n");
-  coap_activate_resource(&res_hello, "test/hello");
+  coap_activate_resource(&res_gateway, "test/gateway");
 
   PRINTF("Multicast Engine Starting\n");
   NETSTACK_ROUTING.root_start();
