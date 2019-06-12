@@ -24,7 +24,7 @@
 //Multicast configuration
 /* Start sending messages START_DELAY secs after we start so that routing can
  * converge */
-#define START_DELAY 60
+#define START_DELAY 100
 #define MCAST_SINK_UDP_PORT 3001 /* Host byte order */
 #define SEND_INTERVAL CLOCK_SECOND /* clock ticks */
 #define ITERATIONS 100 /* messages */
@@ -39,6 +39,7 @@ static struct etimer et;
 void
 client_chunk_handler(coap_message_t *response)
 {
+  printf("Server chunk handler\n");
   const uint8_t *chunk;
 
   int len = coap_get_payload(response, &chunk);
@@ -84,7 +85,7 @@ PROCESS_THREAD(client, ev, data)
     if(etimer_expired(&et)) {
       printf("--Send--\n");
 
-      /* prepare request, TID is set by COAP_BLOCKING_REQUEST() */
+      // prepare request, TID is set by COAP_BLOCKING_REQUEST()
       coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
       coap_set_header_uri_path(request, "test/hello");
 
@@ -101,6 +102,7 @@ PROCESS_THREAD(client, ev, data)
 
       etimer_set(&et, TOGGLE_INTERVAL * CLOCK_SECOND);
     }
+
   }
 
   PROCESS_END();
