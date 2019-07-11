@@ -81,20 +81,34 @@ res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buff
   coap_transaction_t *trans = coap_new_transaction(mid, &server_ep);
 
   static coap_message_t serverResponse[1];
-  char const *const msg = "Hello World";
+  char const *const msg = "Noway";
   int len = strlen(msg);
-  uint8_t content[COAP_MAX_PACKET_SIZE + 1];
-  memcpy(content, msg, len);
 
   coap_init_message(serverResponse, COAP_TYPE_CON, COAP_GET, mid);
   coap_set_header_uri_path(serverResponse, "test/gateway");
-  coap_set_payload(serverResponse, content, len);
+  coap_set_payload(serverResponse, msg, len);
 
-  //coap_sendto(&server_ep, (uint8_t *)msg, coap_serialize_message(serverResponse, content));
-
-  trans->message_len = coap_serialize_message(serverResponse, content);
+  trans->message_len = coap_serialize_message(serverResponse, trans->message);
   coap_send_transaction(trans);
-  coap_clear_transaction(trans);
+  
+  /*
+  printf("Message dump\n");
+  printf("- Parsed: v %u, t %u, tkl %u, c %u, mid %u\n", serverResponse->version,
+          serverResponse->type, serverResponse->token_len, serverResponse->code, serverResponse->mid);
+  printf("- URL:");
+  LOG_DBG_COAP_STRING(serverResponse->uri_path, serverResponse->uri_path_len);
+  printf("\n");
+  printf("- Payload: ");
+  LOG_DBG_COAP_STRING((const char *)serverResponse->payload, serverResponse->payload_len);
+  printf("\n");
+
+  printf("Transaction dump\n");
+  printf("- MID: %d\n", trans->mid);
+  printf("- Length: %d\n", trans->message_len);
+  printf("- Message: %s\n", trans->message);
+  */
+
+
 
   //Response
   char const *const message = "Hello World! ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy";
