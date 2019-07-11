@@ -41,6 +41,9 @@
 
  #include "net/ipv6/multicast/uip-mcast6-engines.h"
 
+ //LOG
+#define LOG_CONF_LEVEL_COAP LOG_LEVEL_DBG
+
  //DTLS Config
  #define COAP_DTLS_PSK_DEFAULT_IDENTITY "Client_identity"
  #define COAP_DTLS_PSK_DEFAULT_KEY      "secretPSK"

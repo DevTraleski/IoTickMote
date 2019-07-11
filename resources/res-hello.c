@@ -42,7 +42,9 @@
 #include <string.h>
 #include <inttypes.h>
 #include "sys/cc.h"
+#include "coap.h"
 #include "coap-engine.h"
+#include "coap-transactions.h"
 
 /* Log configuration */
 #include "coap-log.h"
@@ -71,24 +73,37 @@ res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buff
 {
   printf("Entered resource\n");
 
-  //const char *len = NULL;
-  /* Some data that has the length up to REST_MAX_CHUNK_SIZE. For more, see the chunk resource. */
-  //char const *const message = "Hello World! ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy";
-  //int length = 12; /*          |<-------->| */
+  //Request to server
+  static coap_endpoint_t server_ep;
+  coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &server_ep);
 
-  //memcpy(buffer, message, length);
+  uint16_t mid = coap_get_mid();
+  coap_transaction_t *trans = coap_new_transaction(mid, &server_ep);
 
-  static coap_endpoint_t response_ep;
-  coap_init_message(response, COAP_TYPE_CON, COAP_GET, 0);
-  coap_endpoint_parse(SERVER_EP, strlen(SERVER_EP), &response_ep);
-  coap_set_header_uri_path(response, "test/gateway");
-  coap_set_src_endpoint(response, &response_ep);
+  static coap_message_t serverResponse[1];
+  char const *const msg = "Hello World";
+  int len = strlen(msg);
+  uint8_t content[COAP_MAX_PACKET_SIZE + 1];
+  memcpy(content, msg, len);
 
-  const char msg[] = "Oh hi mark!";
+  coap_init_message(serverResponse, COAP_TYPE_CON, COAP_GET, mid);
+  coap_set_header_uri_path(serverResponse, "test/gateway");
+  coap_set_payload(serverResponse, content, len);
 
-  coap_set_payload(request, (uint8_t *)msg, sizeof(msg) - 1);
+  //coap_sendto(&server_ep, (uint8_t *)msg, coap_serialize_message(serverResponse, content));
 
-  coap_set_header_content_format(response, TEXT_PLAIN); /* text/plain is the default, hence this option could be omitted. */
-  //coap_set_header_etag(response, (uint8_t *)&length, 1);
-  //coap_set_payload(response, buffer, length);
+  trans->message_len = coap_serialize_message(serverResponse, content);
+  coap_send_transaction(trans);
+  coap_clear_transaction(trans);
+
+  //Response
+  char const *const message = "Hello World! ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy";
+  int length = 14;
+
+  memcpy(buffer, message, length);
+
+  coap_set_header_content_format(response, TEXT_PLAIN);
+  coap_set_header_etag(response, (uint8_t *)&length, 1);
+  coap_set_payload(response, buffer, length);
+  printf("Sending response\n");
 }

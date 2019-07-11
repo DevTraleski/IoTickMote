@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 #include "coap-engine.h"
 
 
@@ -61,11 +62,17 @@ static void
 res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset)
 {
   printf("Gateway resource called\n");
+  const uint8_t *content = NULL;
+  int len  = coap_get_payload(request, &content);
+  //printf("%" PRIu8 "\n", content);
+  //printf("Value: %d\n", content);
+  printf("Length: %d\n", len);
+  printf("Value as payload: %s\n", content);
 
   //const char *len = NULL;
   /* Some data that has the length up to REST_MAX_CHUNK_SIZE. For more, see the chunk resource. */
   char const *const message = "Hello World! ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy";
-  int length = 12; /*          |<-------->| */
+  int length = 14; /*          |<-------->| */
 
   memcpy(buffer, message, length);
 
