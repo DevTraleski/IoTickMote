@@ -42,7 +42,7 @@ PROCESS_THREAD(server, ev, data)
   PROCESS_BEGIN();
 
   //LOG_INFO("Starting Gateway CoAP Server\n");
-
+  coap_engine_init();
   coap_activate_resource(&res_hello, "test/hello");
 
   while(1) {

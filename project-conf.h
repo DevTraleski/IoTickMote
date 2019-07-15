@@ -42,16 +42,15 @@
  #include "net/ipv6/multicast/uip-mcast6-engines.h"
 
  //LOG
-#define LOG_CONF_LEVEL_COAP LOG_LEVEL_DBG
-
- //DTLS Config
- #define COAP_DTLS_PSK_DEFAULT_IDENTITY "Client_identity"
- #define COAP_DTLS_PSK_DEFAULT_KEY      "secretPSK"
+ #define LOG_CONF_LEVEL_COAP LOG_LEVEL_DBG
 
  /* Change this to switch engines. Engine codes in uip-mcast6-engines.h */
  #ifndef UIP_MCAST6_CONF_ENGINE
  #define UIP_MCAST6_CONF_ENGINE UIP_MCAST6_ENGINE_MPL
  #endif
+
+ /* Configure AES encryption */
+ #define WITH_AES_DECRYPT 1
 
  /* For Imin: Use 16 over CSMA, 64 over Contiki MAC */
  #define ROLL_TM_CONF_IMIN_1         64

@@ -16,7 +16,7 @@
 
 //CoAP configuration
 
-//#define SERVER_EP "coap://[fe80::201:1:1:1]"
+//#define SERVER_EP "coap://[fe80::202:2:2:2]"
 #define SERVER_EP "coap://[ff03::fc]"
 #define TOGGLE_INTERVAL 10
 
@@ -56,6 +56,7 @@ PROCESS_THREAD(server, ev, data)
   PROCESS_BEGIN();
 
   //LOG_INFO("Starting Gateway CoAP Server\n");
+  coap_engine_init();
   coap_activate_resource(&res_gateway, "test/gateway");
 
   PRINTF("Multicast Engine Starting\n");
@@ -88,13 +89,8 @@ PROCESS_THREAD(client, ev, data)
       // prepare request, TID is set by COAP_BLOCKING_REQUEST()
       coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
       coap_set_header_uri_path(request, "test/hello");
-
       const char msg[] = "Oh hi test!";
-
       coap_set_payload(request, (uint8_t *)msg, sizeof(msg) - 1);
-
-      //LOG_INFO_COAP_EP(&server_ep);
-      //LOG_INFO_("\n");
 
       COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
 
