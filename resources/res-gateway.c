@@ -41,7 +41,7 @@
 #include <string.h>
 #include <inttypes.h>
 #include "coap-engine.h"
-
+#include "aes.h"
 
 static void res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buffer, uint16_t preferred_size, int32_t *offset);
 
@@ -68,6 +68,25 @@ res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buff
   //printf("Value: %d\n", content);
   printf("Length: %d\n", len);
   printf("Value as payload: %s\n", content);
+
+  // Convert the hex back to a string.
+  char *hex = (char *)content;
+  char msg[len / 2];
+
+  for (int i = 0, j = 0; j < len; ++i, j += 2) {
+    int val[1];
+    sscanf(hex + j, "%2x", val);
+    msg[i] = val[0];
+    msg[i + 1] = '\0';
+  }
+  printf("Unhexed: %s\n", msg);
+
+  uint8_t key[] = "1234567890123456";
+  uint8_t iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+  struct AES_ctx ctx;
+  AES_init_ctx_iv(&ctx, key, iv);
+  AES_CBC_decrypt_buffer(&ctx, (uint8_t*)msg, sizeof(msg) - 1);
+  printf("CBC decrypt: %s\n", msg);
 
   //const char *len = NULL;
   /* Some data that has the length up to REST_MAX_CHUNK_SIZE. For more, see the chunk resource. */
