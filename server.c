@@ -8,6 +8,7 @@
 #include "coap-engine.h"
 #include "coap-blocking-api.h"
 #include "net/ipv6/multicast/uip-mcast6.h"
+#include "resources/aes.h"
 
 
 #define DEBUG DEBUG_PRINT
@@ -86,11 +87,26 @@ PROCESS_THREAD(client, ev, data)
     if(etimer_expired(&et)) {
       printf("--Send--\n");
 
+      uint8_t key[] = "1234567890123456";
+      uint8_t iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+      uint8_t msg[] = "RequestData55555";
+      int len = sizeof(msg) - 1;
+      struct AES_ctx ctx;
+      AES_init_ctx_iv(&ctx, key, iv);
+      AES_CBC_encrypt_buffer(&ctx, msg, len);
+      printf("CBC encrypt: %s\n", msg);
+
+      char msgHex[32];
+      // Convert text to hex.
+      for (int i = 0, j = 0; i < len ; ++i, j += 2) {
+        sprintf(msgHex + j, "%02x", msg[i] & 0xff);
+      }
+      printf("Hexed: %s\n", msgHex);
+
       // prepare request, TID is set by COAP_BLOCKING_REQUEST()
       coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
       coap_set_header_uri_path(request, "test/hello");
-      const char msg[] = "Oh hi test!";
-      coap_set_payload(request, (uint8_t *)msg, sizeof(msg) - 1);
+      coap_set_payload(request, (uint8_t *)msgHex, len*2);
 
       COAP_BLOCKING_REQUEST(&server_ep, request, client_chunk_handler);
 

@@ -85,13 +85,21 @@ res_get_handler(coap_message_t *request, coap_message_t *response, uint8_t *buff
   uint8_t iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
   struct AES_ctx ctx;
   AES_init_ctx_iv(&ctx, key, iv);
-  AES_CBC_decrypt_buffer(&ctx, (uint8_t*)msg, sizeof(msg) - 1);
+  AES_CBC_decrypt_buffer(&ctx, (uint8_t*)msg, sizeof(msg));
   printf("CBC decrypt: %s\n", msg);
+  printf("Size: %d\n", sizeof(msg));
+
+  char msgHex[32];
+  // Convert text to hex.
+  for (int i = 0, j = 0; i < sizeof(msg) ; ++i, j += 2) {
+    sprintf(msgHex + j, "%02x", msg[i] & 0xff);
+  }
+  printf("Hexed: %s\n", msgHex);
 
   //const char *len = NULL;
   /* Some data that has the length up to REST_MAX_CHUNK_SIZE. For more, see the chunk resource. */
-  char const *const message = "Hello World! ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxy";
-  int length = 14; /*          |<-------->| */
+  char const *const message = "OK";
+  int length = 2; /*          |<-------->| */
 
   memcpy(buffer, message, length);
 
